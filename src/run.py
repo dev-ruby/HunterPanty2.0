@@ -5,6 +5,13 @@ import sys
 import json
 import random
 
+data = dict
+if not os.path.exists("./points.json"):
+    with open("./points.json", "w") as fp:
+        fp.write("{}")
+with open("./points.json", "r") as fp:
+    data = json.load(fp)
+
 
 class Bot(commands.Bot):
     def __init__(self):
@@ -28,12 +35,12 @@ class Bot(commands.Bot):
         if message.author.id not in [485369763, 520690385]:
             data[str(message.author.id)] = {
                 "point": (
-                        (
-                            data[str(message.author.id)]["point"]
-                            if data.get(str(message.author.id)) is not None
-                            else 0
-                        )
-                        + (100 + len(message.content) * 3 + random.randint(20, 100))
+                    (
+                        data[str(message.author.id)]["point"]
+                        if data.get(str(message.author.id)) is not None
+                        else 0
+                    )
+                    + (100 + len(message.content) * 3 + random.randint(20, 100))
                 ),
                 "name": message.author.name,
             }
@@ -49,7 +56,9 @@ class Bot(commands.Bot):
             else:
                 await message.channel.send("권한이 없습니다")
         if message.content in ["!point", "!포인트", "!points"]:
-            await message.channel.send(point(message.author))
+            await message.channel.send(
+                f"{message.author.name} 님의 잔여 포인트는 {data[str(message.author.id)]['point'] if data.get(str(message.author.id))['point'] is not None else 0} 점 입니다."
+            )
         if message.content in ["!ranking", "!랭킹"]:
             users = list()
             ranking = list()
@@ -67,24 +76,13 @@ class Bot(commands.Bot):
                     f"{i + 1}등 : {ranking[i]['name']}, {ranking[i]['point']} points"
                 )
 
-def point(user):
-    return f"{user.name} 님의 잔여 포인트는 {data[str(user.id)]['point'] if data.get(str(user.id))['point'] is not None else 0} 점 입니다."
-
-
-data = dict
-if not os.path.exists("./points.json"):
-    with open("./points.json", "w") as fp:
-        fp.write("{}")
-with open("./points.json", "r") as fp:
-    data = json.load(fp)
-
 
 def save():
     with open("./points.json", "w") as fp:
         json.dump(data, fp)
 
 
-os.system('cls')
+os.system("cls")
 bot = Bot()
 bot.run()
 
